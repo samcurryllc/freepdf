@@ -242,7 +242,7 @@ export function DashboardScreen({ onUpload, onOpenDocument }: DashboardScreenPro
                   /* Empty state: 4 ghost cells */
                   <>
                     {Array.from({ length: COLS_MD }, (_, i) => (
-                      <GhostCell key={`ghost-${i}`} onClick={() => inputRef.current?.click()} empty={i === 0} />
+                      <GhostCell key={`ghost-${i}`} onClick={() => inputRef.current?.click()} />
                     ))}
                   </>
                 )}
@@ -257,26 +257,16 @@ export function DashboardScreen({ onUpload, onOpenDocument }: DashboardScreenPro
 
 /* ── Ghost Cell ──────────────────────────────────────────── */
 
-function GhostCell({ onClick, empty }: { onClick: () => void; empty?: boolean }) {
+function GhostCell({ onClick }: { onClick: () => void }) {
   return (
     <div
       onClick={onClick}
-      className="group/ghost relative rounded-xl border-2 border-dashed border-slate-200 overflow-hidden cursor-pointer
-        hover:border-primary-300 hover:bg-primary-50/30 transition-all"
+      className="rounded-xl border-2 border-dashed border-slate-200 cursor-pointer
+        hover:border-primary-300 hover:bg-primary-50/30 transition-all
+        flex items-center justify-center aspect-[3/5]"
     >
-      <div className="aspect-[3/4] flex flex-col items-center justify-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-slate-100 group-hover/ghost:bg-primary-100 flex items-center justify-center transition-colors">
-          <Plus size={20} className="text-slate-300 group-hover/ghost:text-primary-500 transition-colors" />
-        </div>
-        {empty && (
-          <p className="text-xs text-slate-300 group-hover/ghost:text-primary-400 transition-colors px-4 text-center">
-            Upload a PDF
-          </p>
-        )}
-      </div>
-      <div className="p-3">
-        <div className="h-4 w-3/4 bg-slate-100 rounded" />
-        <div className="h-3 w-1/2 bg-slate-50 rounded mt-2" />
+      <div className="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-primary-100 flex items-center justify-center">
+        <Plus size={20} className="text-slate-300" />
       </div>
     </div>
   )
