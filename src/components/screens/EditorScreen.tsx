@@ -29,7 +29,7 @@ export function EditorScreen({ pdfUrl, pdfBytes, filename, documentId, onBack }:
         {(saveStatus) => (
           <>
             <KeyboardShortcutsHandler />
-            <div className="flex-1 flex flex-col h-dvh">
+            <div className="fixed inset-0 flex flex-col">
               {/* Desktop: 3-panel layout. Mobile: viewport only */}
               <div className="flex-1 flex min-h-0">
                 {/* Desktop tools panel */}

@@ -194,7 +194,9 @@ export function ToolsPanel({ pdfUrl, mobile, onClose }: ToolsPanelProps) {
                 isActive={state.currentPage === i + 1}
                 onClick={() => {
                   dispatch({ type: 'SET_PAGE', payload: i + 1 })
-                  document.querySelector(`[data-page-number="${i + 1}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  setTimeout(() => {
+                    document.querySelector(`[data-page-number="${i + 1}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  }, 50)
                 }}
               />
             ))}
