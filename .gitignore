@@ -1,0 +1,18 @@
+node_modules
+dist
+*.local
+*.log
+
+# Secrets
+.env
+.env.*
+.mcp.json
+
+# Editor & OS
+.vscode
+.idea
+.DS_Store
+*.sw?
+
+# Claude Code
+.claude
