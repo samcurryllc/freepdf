@@ -24,15 +24,22 @@ export function TextAnnotationView({ annotation, isSelected }: TextAnnotationVie
     if (!isSelected) setIsEditing(false)
   }, [isSelected])
 
+  // Sync content from props into the DOM only when NOT editing
+  useEffect(() => {
+    if (!isEditing && editRef.current) {
+      editRef.current.textContent = annotation.content
+    }
+  }, [annotation.content, isEditing])
+
   const handleBlur = useCallback(() => {
     const text = editRef.current?.textContent || ''
+    setIsEditing(false)
     if (text !== annotation.content) {
       dispatch({
         type: 'UPDATE_ANNOTATION',
         payload: { id: annotation.id, changes: { content: text } },
       })
     }
-    setIsEditing(false)
   }, [annotation.id, annotation.content, dispatch])
 
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
@@ -68,8 +75,6 @@ export function TextAnnotationView({ annotation, isSelected }: TextAnnotationVie
         lineHeight: 1.3,
         cursor: isEditing ? 'text' : 'inherit',
       }}
-    >
-      {annotation.content}
-    </div>
+    />
   )
 }

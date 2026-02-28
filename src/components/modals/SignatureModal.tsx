@@ -10,6 +10,8 @@ interface SignatureModalProps {
   open: boolean
   onClose: () => void
   onConfirm: (dataUrl: string) => void
+  title?: string
+  confirmLabel?: string
 }
 
 function getSavedSignatures(): string[] {
@@ -27,7 +29,7 @@ function saveSignature(dataUrl: string) {
   localStorage.setItem(SAVED_SIGNATURES_KEY, JSON.stringify(updated))
 }
 
-export function SignatureModal({ open, onClose, onConfirm }: SignatureModalProps) {
+export function SignatureModal({ open, onClose, onConfirm, title = 'Add Signature', confirmLabel = 'Add Signature' }: SignatureModalProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const padRef = useRef<SignaturePad | null>(null)
   const [tab, setTab] = useState<'draw' | 'upload' | 'saved'>('draw')
@@ -96,7 +98,7 @@ export function SignatureModal({ open, onClose, onConfirm }: SignatureModalProps
   )
 
   return (
-    <Modal open={open} onClose={onClose} title="Add Signature">
+    <Modal open={open} onClose={onClose} title={title}>
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-slate-100 rounded-lg mb-5">
         <button
@@ -164,7 +166,7 @@ export function SignatureModal({ open, onClose, onConfirm }: SignatureModalProps
 
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="secondary" onClick={onClose}>Cancel</Button>
-            <Button onClick={handleConfirmDraw}>Add Signature</Button>
+            <Button onClick={handleConfirmDraw}>{confirmLabel}</Button>
           </div>
         </div>
       )}

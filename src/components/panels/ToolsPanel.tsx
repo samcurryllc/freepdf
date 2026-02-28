@@ -3,7 +3,7 @@ import {
   MousePointer2, Type, PenLine, Calendar, Undo2, Redo2,
   Image, Pencil, Highlighter, Strikethrough, Underline,
   StickyNote, Square, Circle, Minus, ArrowRight,
-  Droplets, FileText, CheckSquare, EyeOff, Hash,
+  Droplets, FileText, EyeOff, Hash,
   User, Copy, Clipboard,
 } from 'lucide-react'
 import type { Tool } from '../../types'
@@ -134,7 +134,6 @@ export function ToolsPanel({ pdfUrl, mobile, onClose }: ToolsPanelProps) {
           <ToolBtn icon={<Hash size={15} />} label="Initials" active={false} onClick={() => setInitialsModalOpen(true)} />
           <ToolBtn icon={<Calendar size={15} />} label="Date" active={state.activeTool === 'date'} onClick={() => setTool('date')} />
           <ToolBtn icon={<Image size={15} />} label="Image" active={false} onClick={() => setImageModalOpen(true)} />
-          <ToolBtn icon={<CheckSquare size={15} />} label="Checkbox" active={state.activeTool === 'checkbox'} onClick={() => setTool('checkbox')} />
         </div>
       </div>
 
@@ -205,7 +204,7 @@ export function ToolsPanel({ pdfUrl, mobile, onClose }: ToolsPanelProps) {
 
       {/* Modals */}
       <SignatureModal open={signatureModalOpen} onClose={() => setSignatureModalOpen(false)} onConfirm={handleSignatureConfirm} />
-      <SignatureModal open={initialsModalOpen} onClose={() => setInitialsModalOpen(false)} onConfirm={handleInitialsConfirm} />
+      <SignatureModal open={initialsModalOpen} onClose={() => setInitialsModalOpen(false)} onConfirm={handleInitialsConfirm} title="Add Initials" confirmLabel="Add Initials" />
       <ImageUploadModal open={imageModalOpen} onClose={() => setImageModalOpen(false)} onConfirm={handleImageConfirm} />
       <StickyNoteModal open={stickyModalOpen} onClose={() => setStickyModalOpen(false)} onConfirm={handleStickyConfirm} defaultAuthor={state.signerName} />
       <WatermarkModal open={watermarkModalOpen} onClose={() => setWatermarkModalOpen(false)} config={state.watermark} onSave={(c) => dispatch({ type: 'SET_WATERMARK', payload: c })} />
