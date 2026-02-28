@@ -53,7 +53,11 @@ export function AnnotationItem({ annotation }: AnnotationItemProps) {
       if ((e.target as HTMLElement).dataset.resizeHandle) return
       if ((e.target as HTMLElement).isContentEditable) return
       e.stopPropagation()
-      e.preventDefault()
+
+      // Don't preventDefault when already selected — allows dblclick for text editing
+      if (!isSelected) {
+        e.preventDefault()
+      }
 
       if (e.shiftKey) {
         dispatch({ type: 'TOGGLE_SELECT_ANNOTATION', payload: annotation.id })
