@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Upload, FileText, Shield, MoreHorizontal, Pencil, Trash2, FolderOpen, X, AlertCircle, FileX2 } from 'lucide-react'
+import { Upload, FileText, Shield, MoreHorizontal, Pencil, Trash2, FolderOpen, X, AlertCircle, Plus } from 'lucide-react'
 import type { DocumentMeta } from '../../types'
 import { getAllDocumentMeta, deleteDocument, renameDocument, getStorageEstimate } from '../../lib/documentStore'
 
@@ -12,8 +12,8 @@ interface DashboardScreenProps {
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
   const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1)
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
 }
 
@@ -31,6 +31,11 @@ function formatRelativeTime(dateStr: string): string {
   if (days < 30) return `${days} days ago`
   return new Date(dateStr).toLocaleDateString()
 }
+
+/** Number of columns at each breakpoint */
+const COLS_MOBILE = 2
+const COLS_SM = 3
+const COLS_MD = 4
 
 export function DashboardScreen({ onUpload, onOpenDocument }: DashboardScreenProps) {
   const [documents, setDocuments] = useState<DocumentMeta[]>([])
@@ -101,6 +106,9 @@ export function DashboardScreen({ onUpload, onOpenDocument }: DashboardScreenPro
   }, [loadDocuments])
 
   const hasDocuments = documents.length > 0
+
+  // Ghost cells to fill the row to COLS_MD (largest breakpoint)
+  const ghostCount = hasDocuments ? Math.max(0, COLS_MD - documents.length) : 0
 
   return (
     <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/30 min-h-dvh">
@@ -183,7 +191,7 @@ export function DashboardScreen({ onUpload, onOpenDocument }: DashboardScreenPro
           </div>
         ) : (
           <>
-            {/* Storage bar — only when we have a usable quota estimate */}
+            {/* Storage bar */}
             {hasDocuments && storage.usage > 0 && storage.quota > 1_000_000 && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
@@ -204,37 +212,71 @@ export function DashboardScreen({ onUpload, onOpenDocument }: DashboardScreenPro
             {/* Recent Documents */}
             <section className="mb-8">
               <h2 className="text-sm font-semibold text-slate-700 mb-4">Recent Documents</h2>
-              {hasDocuments ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-                  {documents.map((doc) => (
-                    <DocumentCard
-                      key={doc.id}
-                      doc={doc}
-                      menuOpenId={menuOpenId}
-                      setMenuOpenId={setMenuOpenId}
-                      renamingId={renamingId}
-                      setRenamingId={setRenamingId}
-                      renameValue={renameValue}
-                      setRenameValue={setRenameValue}
-                      deleteConfirmId={deleteConfirmId}
-                      setDeleteConfirmId={setDeleteConfirmId}
-                      renameInputRef={renameInputRef}
-                      onOpen={onOpenDocument}
-                      onRename={handleRename}
-                      onDelete={handleDelete}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 px-6 rounded-xl border-2 border-dashed border-slate-200 bg-white/40">
-                  <FileX2 size={32} className="text-slate-300 mb-3" />
-                  <p className="text-sm font-medium text-slate-400">No documents yet</p>
-                  <p className="text-xs text-slate-300 mt-1">Upload a PDF above to get started</p>
-                </div>
-              )}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+                {hasDocuments ? (
+                  <>
+                    {documents.map((doc) => (
+                      <DocumentCard
+                        key={doc.id}
+                        doc={doc}
+                        menuOpenId={menuOpenId}
+                        setMenuOpenId={setMenuOpenId}
+                        renamingId={renamingId}
+                        setRenamingId={setRenamingId}
+                        renameValue={renameValue}
+                        setRenameValue={setRenameValue}
+                        deleteConfirmId={deleteConfirmId}
+                        setDeleteConfirmId={setDeleteConfirmId}
+                        renameInputRef={renameInputRef}
+                        onOpen={onOpenDocument}
+                        onRename={handleRename}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                    {/* Ghost cells to fill the row */}
+                    {Array.from({ length: ghostCount }, (_, i) => (
+                      <GhostCell key={`ghost-${i}`} onClick={() => inputRef.current?.click()} />
+                    ))}
+                  </>
+                ) : (
+                  /* Empty state: 4 ghost cells */
+                  <>
+                    {Array.from({ length: COLS_MD }, (_, i) => (
+                      <GhostCell key={`ghost-${i}`} onClick={() => inputRef.current?.click()} empty={i === 0} />
+                    ))}
+                  </>
+                )}
+              </div>
             </section>
           </>
         )}
+      </div>
+    </div>
+  )
+}
+
+/* ── Ghost Cell ──────────────────────────────────────────── */
+
+function GhostCell({ onClick, empty }: { onClick: () => void; empty?: boolean }) {
+  return (
+    <div
+      onClick={onClick}
+      className="group/ghost relative rounded-xl border-2 border-dashed border-slate-200 overflow-hidden cursor-pointer
+        hover:border-primary-300 hover:bg-primary-50/30 transition-all"
+    >
+      <div className="aspect-[3/4] flex flex-col items-center justify-center gap-2">
+        <div className="w-10 h-10 rounded-full bg-slate-100 group-hover/ghost:bg-primary-100 flex items-center justify-center transition-colors">
+          <Plus size={20} className="text-slate-300 group-hover/ghost:text-primary-500 transition-colors" />
+        </div>
+        {empty && (
+          <p className="text-xs text-slate-300 group-hover/ghost:text-primary-400 transition-colors px-4 text-center">
+            Upload a PDF
+          </p>
+        )}
+      </div>
+      <div className="p-3">
+        <div className="h-4 w-3/4 bg-slate-100 rounded" />
+        <div className="h-3 w-1/2 bg-slate-50 rounded mt-2" />
       </div>
     </div>
   )
